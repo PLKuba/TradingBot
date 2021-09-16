@@ -1,9 +1,10 @@
 import smtplib
+from config import MAIL,MAIL_PASSWORD
 
 def send_mail(subject,body):
-    sender = "major.plays96@gmail.com"
-    receiver = "major.plays96@gmail.com"
-    password = "oqnltyqhugtacydj"
+    sender = MAIL
+    receiver = MAIL
+    password = MAIL_PASSWORD
 
     # header
     message = f"""\
