@@ -1,4 +1,4 @@
-VERSION="v1.1.2"
+VERSION="v1.1.3"
 print(VERSION)
 
 import ccxt,pandas as pd
@@ -10,9 +10,8 @@ from sms import send_mail
 import futures_test as futures
 from pprint import pprint as pp
 
-exchange=ccxt.binance()
-
 from config import API_KEY,API_SECRET
+exchange=ccxt.binance()
 client=Client(API_KEY,API_SECRET)
 
 settings={
@@ -177,4 +176,3 @@ schedule.every(1).seconds.do(run_bot,settings=settings)
 while True:
     schedule.run_pending()
     time.sleep(0)
-
