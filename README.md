@@ -3,7 +3,8 @@
 This is a crypto trading bot that supports Binance® exchange.
 
 Backtesting results:
-I will be wisible in the backtesting.txt file -> UNDER THE MAINTENANCE
+I will be visible in the backtesting.txt file -> UNDER THE MAINTENANCE
+
 So far I managed to grow my account 89,6% in two months.
 
 In order to make it works, fork youw own copy and do the following:
