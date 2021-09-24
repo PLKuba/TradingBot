@@ -1,4 +1,4 @@
-VERSION="v1.1.3"
+VERSION="v1"
 print(VERSION)
 
 import ccxt,pandas as pd
@@ -6,9 +6,10 @@ from indicators import EMA_class,SuperTrend
 from datetime import datetime
 from binance.client import Client
 import schedule,time
+
+
 from sms import send_mail
 import futures_test as futures
-from pprint import pprint as pp
 
 from config import API_KEY,API_SECRET
 exchange=ccxt.binance()
@@ -47,6 +48,8 @@ def check_buy_sell_signals(df, symbol,settings,trade_time):
         print("CLOSE SHORT")
 
         closed_short = True
+        in_short_position = False
+        in_long_position = False
 
     if not closed_long and in_long_position and df["STX_12_3"][last_row_index] == "down":
         futures.cancel_buy_order(symbol)
@@ -56,13 +59,17 @@ def check_buy_sell_signals(df, symbol,settings,trade_time):
         print("CLOSE LONG")
 
         closed_long = True
+        in_long_position = False
+        in_long_position = False
+
 
 
     if df["EMA"][last_row_index]>df["Close"][last_row_index]:
     #    price is below EMA
         if not in_short_position:
             if df["STX_12_3"][last_row_index]=="down":
-                futures.buy(symbol,settings["cost"])
+                futures.sell(symbol, settings["cost"])
+
                 send_mail("Open short", f"Shorted {symbol} at ${price}")
 
                 df["SHORT ACTION"][last_row_index] = "OPEN SHORT"
@@ -77,7 +84,8 @@ def check_buy_sell_signals(df, symbol,settings,trade_time):
     #    price is above EMA
         if not in_long_position:
             if df["STX_12_3"][last_row_index]=="up":
-                futures.sell(symbol,settings["cost"])
+                futures.buy(symbol, settings["cost"])
+
                 send_mail("Open long", f"Longed {symbol} at ${price}")
 
                 df["LONG ACTION"][last_row_index] = "OPEN LONG"
@@ -93,7 +101,6 @@ def check_buy_sell_signals(df, symbol,settings,trade_time):
     settings["closed_long"]=closed_long
     settings["closed_short"]=closed_short
 
-
 def run_bot(settings):
     balance = client.futures_account_balance(timestamp=datetime.now().timestamp())
     for item in balance:
@@ -108,7 +115,7 @@ def run_bot(settings):
     while True:
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
-        if int(current_time[6]) == 0 and int(current_time[7])==0:
+        if int(current_time[6]) == 0 and int(current_time[7])==1:
             break
 
     now = datetime.now()
@@ -131,7 +138,6 @@ def run_bot(settings):
 
     supertrend_12_3 = SuperTrend(df, period=12, multiplier=3).supertrend_calc()
     ema = EMA_class(df, base="Close", target="EMA", period=settings["ema_period"]).EMA()
-
 
     check_buy_sell_signals(df, symbol=settings["symbol"],trade_time=current_time,settings=settings)
     print(df.tail(10))
@@ -175,4 +181,4 @@ schedule.every(1).seconds.do(run_bot,settings=settings)
 
 while True:
     schedule.run_pending()
-    time.sleep(0)
+    time.sleep(1)
